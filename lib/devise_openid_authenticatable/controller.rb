@@ -3,7 +3,8 @@ module DeviseOpenidAuthenticatable
     extend ActiveSupport::Concern
 
     included do
-      alias_method_chain :verify_authenticity_token, :openid_response_check
+      alias_method :verify_authenticity_token_without_openid_response_check, :verify_authenticity_token
+      alias_method :verify_authenticity_token, :verify_authenticity_token_with_openid_response_check
     end
 
     protected
@@ -12,7 +13,7 @@ module DeviseOpenidAuthenticatable
     end
 
     def openid_provider_response?
-      !!env[Rack::OpenID::RESPONSE]
+      !!request.env[Rack::OpenID::RESPONSE]
     end
   end
 end

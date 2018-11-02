@@ -7,6 +7,7 @@ require "rails/test_help"
 require 'rspec/rails'
 require 'sham_rack'
 require 'rots'
+require 'webrat'
 
 Webrat.configure do |config|
   config.mode = :rails
@@ -18,6 +19,8 @@ RSpec.configure do |config|
     config.include ::Rails::Controller::Testing::TestProcess,        type: type
     config.include ::Rails::Controller::Testing::TemplateAssertions, type: type
     config.include ::Rails::Controller::Testing::Integration,        type: type
+    config.example_status_persistence_file_path = ".rspec_status"
+    config.expect_with(:rspec) { |c| c.syntax = :should }
   end if Rails.version >= '5'
   config.mock_with :mocha
   config.infer_spec_type_from_file_location!
@@ -49,6 +52,6 @@ rots_server = Rack::Builder.new do
   end
 end
 
-ShamRack.mount(rots_server, 'openid.example.org')
+ShamRack.at('openid.example.org').mount(rots_server)
 
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }

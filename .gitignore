@@ -5,3 +5,4 @@ Gemfile.lock
 spec/scenario/db/*.sqlite3
 spec/scenario/tmp/*
 vendor/bundle
+.rspec_status

@@ -1,6 +1,6 @@
-superclass = ActiveRecord::Migration
+superclass = ActiveRecord::Migration unless superclass.respond_to?(:[])
 # TODO: Inherit from the 5.0 Migration class directly when we drop support for Rails 4.
-superclass = ActiveRecord::Migration[5.0] if superclass.respond_to?(:[])
+superclass = ActiveRecord::Migration[5.1] if superclass.respond_to?(:[])
 
 class CreateTables < superclass
   def self.up

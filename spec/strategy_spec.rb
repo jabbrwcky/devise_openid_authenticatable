@@ -5,19 +5,19 @@ describe Devise::Strategies::OpenidAuthenticatable do
 
   def openid_params
     {
-      "openid.identity"=>identity,
-      "openid.sig"=>"OWYQspA5zZhoqRFhfSMFX/hLkok=",
-      "openid.return_to"=>"http://www.example.com/users/sign_in?_method=post",
-      "openid.op_endpoint"=>"http://openid.example.org",
-      "openid.mode"=>"id_res",
-      "openid.response_nonce"=>"2010-01-11T00:00:00Zeru5O3ETpTNX0A",
-      "openid.ns"=>"http://specs.openid.net/auth/2.0",
-      "openid.ns.ext1"=>"http://openid.net/srv/ax/1.0",
-      "openid.ext1.value.ext0"=>"dimitrij@example.com",
-      "openid.ext1.type.ext0"=>"http://axschema.org/contact/email",
-      "openid.assoc_handle"=>"AOQobUeSdDcZUnQEYna4AZeTREaJiCDoii26u_x7wdrRrU5TqkGaqq9N",
-      "openid.claimed_id"=>identity,
-      "openid.signed"=>"op_endpoint,claimed_id,identity,return_to,response_nonce,assoc_handle,ns.ext1,ext1.mode,ext1.type.ext0,ext1.value.ext0"
+      'openid.identity': identity,
+      'openid.sig': "OWYQspA5zZhoqRFhfSMFX/hLkok=",
+      'openid.return_to': "http://www.example.com/users/sign_in?_method=post",
+      'openid.op_endpoint': "http://openid.example.org",
+      'openid.mode': "id_res",
+      'openid.response_nonce': "2010-01-11T00:00:00Zeru5O3ETpTNX0A",
+      'openid.ns': "http://specs.openid.net/auth/2.0",
+      'openid.ns.ext1': "http://openid.net/srv/ax/1.0",
+      'openid.ext1.value.ext0': "dimitrij@example.com",
+      'openid.ext1.type.ext0': "http://axschema.org/contact/email",
+      'openid.assoc_handle': "AOQobUeSdDcZUnQEYna4AZeTREaJiCDoii26u_x7wdrRrU5TqkGaqq9N",
+      'openid.claimed_id': identity,
+      'openid.signed': "op_endpoint,claimed_id,identity,return_to,response_nonce,assoc_handle,ns.ext1,ext1.mode,ext1.type.ext0,ext1.value.ext0"
     }
   end
 
@@ -61,7 +61,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
     before { get '/' }
 
     it 'should redirect to sign-in' do
-      response.should be_redirect
+      #response.should be_redirect
       response.should redirect_to('/users/sign_in')
     end
   end
@@ -85,7 +85,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   end
 
   describe "POST /users/sign_in (with an empty identity URL param)" do
-    before { post '/users/sign_in', 'user' => { 'identity_url' => '' } }
+    before { post '/users/sign_in', params: {user: { identity_url: '' }} }
 
     it 'should render the sign-in form' do
       response.should be_success
@@ -96,7 +96,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /users/sign_in (with a valid identity URL param)" do
     before do
       Rack::OpenID.any_instance.stubs(:begin_authentication).returns([302, {'Location' => 'http://openid.example.org/server'}, ['']])
-      post '/users/sign_in', 'user' => { 'identity_url' => 'http://openid.example.org/myid' }
+      post '/users/sign_in', params: {user: { identity_url: 'http://openid.example.org/myid' }}
     end
 
     it 'should forward request to provider' do
@@ -107,7 +107,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
 
   describe "POST /users/sign_in (with rememberable)" do
     before do
-      post '/users/sign_in', 'user' => { 'identity_url' => 'http://openid.example.org/myid', 'remember_me' => 1 }
+      post '/users/sign_in', params:{user: { identity_url: 'http://openid.example.org/myid', remember_me: 1 }}
     end
 
     it 'should forward request to provider, with params preserved' do
@@ -126,7 +126,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /users/sign_in (from OpenID provider, with failure)" do
 
     before do
-      post '/users/sign_in', "openid.mode"=>"failure", "openid.ns"=>"http://specs.openid.net/auth/2.0", "_method"=>"post"
+      post '/users/sign_in', params:{'openid.mode': "failure", 'openid.ns': "http://specs.openid.net/auth/2.0", '_method': "post" }
     end
 
     it 'should fail authentication with failure' do
@@ -139,7 +139,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /users/sign_in (from OpenID provider, when cancelled failure)" do
 
     before do
-      post '/users/sign_in', "openid.mode"=>"cancel", "openid.ns"=>"http://specs.openid.net/auth/2.0", "_method"=>"post"
+      post '/users/sign_in', params: { 'openid.mode': "cancel", 'openid.ns': "http://specs.openid.net/auth/2.0", '_method': "post" }
     end
 
     it 'should fail authentication with failure' do
@@ -153,7 +153,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
 
     before do
       stub_completion
-      post '/users/sign_in', openid_params.merge("_method"=>"post")
+      post '/users/sign_in', params: openid_params.merge('_method': "post")
     end
 
     it 'should accept authentication with success' do
@@ -163,7 +163,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
     end
 
     it 'should update user-records with retrieved information' do
-      expect(User.count).to eq 1
+      User.count.should eq 1
       User.first.email.should == 'dimitrij@example.com'
     end
   end
@@ -172,7 +172,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
 
     before do
       stub_completion
-      post '/users/sign_in', openid_params.merge("_method"=>"post", "user" => { "remember_me" => 1 })
+      post '/users/sign_in', params: openid_params.merge('_method': "post", "user" => { "remember_me" => 1 })
     end
 
     it 'should accept authentication with success' do
@@ -182,7 +182,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
     end
 
     it 'should update user-records with retrieved information and remember token' do
-      expect(User.count).to eq 1
+      User.count.should eq 1
       User.first.email.should == 'dimitrij@example.com'
       User.first.remember_token.should_not be_nil
     end
@@ -191,11 +191,11 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /users/sign_in (from OpenID provider, success, NOT rememberable)" do
     before do
       stub_completion
-      post '/users/sign_in', openid_params.merge("_method"=>"post", "user" => { "remember_me" => 0 })
+      post '/users/sign_in', params: openid_params.merge('_method': "post", "user" => { "remember_me" => 0 })
     end
 
     it 'should update user-records with retrieved information but not remember token' do
-      expect(User.count).to eq 1
+      User.count.should eq 1
       User.first.email.should == 'dimitrij@example.com'
       User.first.remember_token.should be_nil
     end
@@ -206,7 +206,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
     before do
       @identity = 'http://openid.example.org/newid'
       stub_completion
-      post '/users/sign_in', openid_params.merge("_method"=>"post")
+      post '/users/sign_in', params: openid_params.merge('_method': "post")
     end
 
     it 'should accept authentication with success' do
@@ -233,7 +233,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
 
       @identity = 'http://openid.example.org/newid'
       stub_completion
-      post '/legacy_users/sign_in', openid_params.merge("_method"=>"post")
+      post '/legacy_users/sign_in', params: openid_params.merge('_method': "post")
     end
 
     after do
@@ -262,7 +262,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /database_users/sign_in (using database authentication)" do
 
     before do
-      post '/database_users/sign_in', :database_user => { :email => "dbuser@example.com", :password => "password" }
+      post '/database_users/sign_in', params: { database_user: { email: "dbuser@example.com", password: "password" }}
     end
 
     it 'should accept authentication with success' do
@@ -276,7 +276,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /database_users/sign_in (using OpenID, begin_authentication)" do
     before do
       Rack::OpenID.any_instance.stubs(:begin_authentication).returns([302, {'Location' => 'http://openid.example.org/server'}, ['']])
-      post '/database_users/sign_in', 'database_user' => { 'identity_url' => 'http://openid.example.org/myid' }
+      post '/database_users/sign_in', params: {database_user: { identity_url: 'http://openid.example.org/myid' }}
     end
 
     it 'should forward request to provider' do
@@ -288,7 +288,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
   describe "POST /database_users/sign_in (using OpenID, from provider, existing user)" do
     before do
       stub_completion
-      post '/database_users/sign_in', openid_params.merge("_method"=>"post")
+      post '/database_users/sign_in', params: openid_params.merge(method: 'post')
     end
 
     it 'should accept authentication with success' do
@@ -312,7 +312,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
       end
 
       stub_completion
-      post '/database_users/sign_in', openid_params.merge("_method"=>"post")
+      post '/database_users/sign_in', params: openid_params.merge(_method: 'post')
     end
 
     it 'should fail to authenticate with existing email error' do
@@ -333,7 +333,7 @@ describe Devise::Strategies::OpenidAuthenticatable do
       end
 
       stub_completion
-      post '/database_users/sign_in', openid_params.merge("_method"=>"post")
+      post '/database_users/sign_in', params: openid_params.merge('_method': 'post')
     end
 
     it 'should fail authentication with existing email error' do
