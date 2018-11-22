@@ -20,7 +20,7 @@ RSpec.configure do |config|
     config.include ::Rails::Controller::Testing::TemplateAssertions, type: type
     config.include ::Rails::Controller::Testing::Integration,        type: type
     config.example_status_persistence_file_path = ".rspec_status"
-    config.expect_with(:rspec) { |c| c.syntax = :should }
+    #config.expect_with(:rspec) { |c| c.syntax = :should }
   end if Rails.version >= '5'
   config.mock_with :mocha
   config.infer_spec_type_from_file_location!

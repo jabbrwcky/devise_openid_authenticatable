@@ -10,4 +10,5 @@ group :test do
   gem 'devise', '~> 4.5.0'
   gem 'test-unit' # Ruby > 2.1, see github.com/rspec/rspec-rails/issues/1273
   gem 'rails-controller-testing'
+  gem 'byebug'
 end
